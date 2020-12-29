@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/DevVrat0xB/YALB-Server/issues"
   },
-  "homepage": "https://github.com/DevVrat0xB/YALB-Server#readme"
+  "homepage": "https://github.com/DevVrat0xB/YALB-Server#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
