@@ -1,0 +1,19 @@
+{
+  "name": "yalb-server",
+  "version": "0.0.0",
+  "description": "Backend for the YALB web app.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/DevVrat0xB/YALB-Server.git"
+  },
+  "author": "Dev Vrat",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DevVrat0xB/YALB-Server/issues"
+  },
+  "homepage": "https://github.com/DevVrat0xB/YALB-Server#readme"
+}
