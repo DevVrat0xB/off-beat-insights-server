@@ -1,9 +1,11 @@
 {
-  "name": "yalb-server",
+  "name": "offbeatinsights-server",
   "version": "0.0.0",
   "description": "Backend for the YALB web app.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "build:prod": "NODE_ENV='production' node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +21,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "npm": "^7.5.4"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }
