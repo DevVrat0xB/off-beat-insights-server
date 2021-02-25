@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/DevVrat0xB/YALB-Server#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "npm": "^7.5.4"
   },
