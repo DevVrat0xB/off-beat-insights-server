@@ -2,10 +2,11 @@
   "name": "offbeatinsights-server",
   "version": "0.0.0",
   "description": "Backend for the YALB web app.",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node index.js",
-    "build:prod": "NODE_ENV='production' node index.js",
+    "start": "node dist/index.js",
+    "dev": "nodemon index.ts",
+    "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,6 +27,9 @@
   "devDependencies": {
     "@types/express": "^4.17.11",
     "@types/node": "^14.14.31",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.2"
   }
 }
