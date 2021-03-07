@@ -6,6 +6,7 @@ import logger from "./utils/logger";
 import connectDB from "./utils/connection"; // function for DB connection.
 
 // Routers for handling different API requests.
+import ArticleRouter from "./routes/articles";
 
 // request handler which is passed in to the HTTP Server.
 const requestHandler: Application = Express();
@@ -27,8 +28,10 @@ connectDB()
 
 // Middlewares for processing all APIs.
 requestHandler.use(CORS()); // allow cross origin resource sharing.
+requestHandler.use(Express.json());
 
 // Middlewares for handling different routes.
+requestHandler.use("/articles", ArticleRouter);
 
 // *****************************
 // *****************************
