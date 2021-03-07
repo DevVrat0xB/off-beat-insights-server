@@ -2,7 +2,6 @@ import Express, { Application } from "express";
 import bodyParser from "body-parser";
 import CORS from "cors";
 
-import loadEnvironment from "./utils/configuration";
 import DBConnection from "./utils/connection"; // class for DB connection.
 
 // Routers for handling different API requests.
@@ -10,15 +9,8 @@ import DBConnection from "./utils/connection"; // class for DB connection.
 // request handler which is passed in to the HTTP Server.
 const requestHandler: Application = Express();
 
-loadEnvironment(); // loading environment variable file.
-
 // connecting to the database.
-new DBConnection(
-  String(process.env.DB_CLUSTER),
-  String(process.env.DB_USER),
-  String(process.env.DB_PASSWORD),
-  String(process.env.DB_NAME)
-);
+new DBConnection();
 
 // *****************************
 // ******** MIDDLEWARES ********

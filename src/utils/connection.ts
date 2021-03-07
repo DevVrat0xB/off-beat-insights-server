@@ -1,39 +1,34 @@
 import { Db, MongoClient } from "mongodb";
+import loadEnvironment from "./configuration";
 import logger from "./logger";
 
 class DBConnection {
-  // (MongoDB) client information.
-  private static activeClient: MongoClient;
+  // connected database reference.
+  // can be used for making queries in request handler or controllers.
+  private static activeDB: Db;
 
-  // fetches the database in use.
+  // return a copy of the connected database reference.
   static getActiveDB(): Db {
-    const dbCopy: Db = DBConnection.activeClient.db();
+    const dbCopy: Db = DBConnection.activeDB;
     return dbCopy;
   }
 
   // Establishing the connection at the time of instantiation.
-  constructor(
-    private cluster: string,
-    private username: string,
-    private password: string,
-    private database: string
-  ) {
+  constructor() {
+    loadEnvironment();
     // formatting the URL for MongoDB cluster/database.
-    let url: string;
-    if (
-      process.env.NODE_ENV === "production" ||
-      process.env.NODE_ENV === "cloud"
-    ) {
-      url = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority`;
-    } else {
-      url = `mongodb://${process.env.DB_CLUSTER}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-      logger.debug(
-        `mongodb://${process.env.DB_CLUSTER}:${process.env.DB_PORT}/${process.env.DB_NAME}`
-      );
-    }
+    const cloud_url: string = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+    const local_url: string = `mongodb://${process.env.DB_CLUSTER}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+
+    // connecting to the desired DB server.
+    let activeURL: string;
+    activeURL =
+      process.env.NODE_ENV === "production" || process.env.NODE_ENV === "cloud"
+        ? cloud_url
+        : local_url;
 
     // Instantiating the client.
-    const client = new MongoClient(url, {
+    const client = new MongoClient(activeURL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -46,7 +41,7 @@ class DBConnection {
 
         // Mongo creates a DB if not already exists.
         // Hence 'result.db' will never be undefined.
-        DBConnection.activeClient = result;
+        DBConnection.activeDB = result.db();
       })
       .catch((error) => {
         logger.error(
