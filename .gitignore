@@ -1,2 +1,12 @@
+# dependencies
 **/node_modules/**
-.env
+
+# output files and folders
+/dist
+
+# log files and folder
+**/logs/**
+*.log
+
+# configurations
+.env*
