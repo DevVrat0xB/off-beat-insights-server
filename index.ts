@@ -1,13 +1,14 @@
 import HTTP from "http";
-import { getEnvironmentVariables } from "./src/utils/configurations";
+import ExpressRequestHandler from "./src/express";
+import loadEnvironment from "./src/utils/configuration";
+import logger from "./src/utils/logger";
 
 // instantiating Node server.
-const HTTPServer: HTTP.Server = HTTP.createServer(() => {
-  console.log("Server Running");
-});
+const HTTPServer: HTTP.Server = HTTP.createServer(ExpressRequestHandler);
 
 // loading environment variables.
-const server = getEnvironmentVariables();
+loadEnvironment();
 
 // port number on which server is running.
-HTTPServer.listen({ port: server.port });
+HTTPServer.listen({ port: process.env.LOCAL_PORT });
+logger.info("Server running at port: " + process.env.PORT);
