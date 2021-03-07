@@ -1,8 +1,9 @@
 import Express, { Application } from "express";
-import bodyParser from "body-parser";
+import { Db } from "mongodb";
 import CORS from "cors";
 
-import DBConnection from "./utils/connection"; // class for DB connection.
+import logger from "./utils/logger";
+import connectDB from "./utils/connection"; // function for DB connection.
 
 // Routers for handling different API requests.
 
@@ -10,7 +11,15 @@ import DBConnection from "./utils/connection"; // class for DB connection.
 const requestHandler: Application = Express();
 
 // connecting to the database.
-new DBConnection();
+let db: Db; // will be passed on to all controller for making queries.
+connectDB()
+  .then((database: Db) => {
+    db = database;
+    logger.info("Database connection established.");
+  })
+  .catch((error) => {
+    logger.error("[Express.ts] Database connection failed.\n" + error);
+  });
 
 // *****************************
 // ******** MIDDLEWARES ********
@@ -18,12 +27,13 @@ new DBConnection();
 
 // Middlewares for processing all APIs.
 requestHandler.use(CORS()); // allow cross origin resource sharing.
-requestHandler.use(bodyParser.urlencoded({ extended: false })); // parse body having JSON format.
 
 // Middlewares for handling different routes.
 
 // *****************************
 // *****************************
+
+export { db }; // database reference, exposed so that controllers can use it.
 
 // exporting the request handler (to be used by HTTP server).
 export default requestHandler;
