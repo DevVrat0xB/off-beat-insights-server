@@ -10,5 +10,5 @@ const HTTPServer: HTTP.Server = HTTP.createServer(ExpressRequestHandler);
 loadEnvironment();
 
 // port number on which server is running.
-HTTPServer.listen({ port: process.env.LOCAL_PORT });
+HTTPServer.listen({ port: process.env.PORT });
 logger.info("Server running at port: " + process.env.PORT);
