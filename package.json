@@ -4,8 +4,9 @@
   "description": "Backend for the YALB web app.",
   "main": "index.ts",
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "nodemon index.ts",
+    "start": "NODE_ENV=production node dist/index.js",
+    "dev": "NODE_ENV=development nodemon index.ts",
+    "dev-cloud": "NODE_ENV=cloud nodemon index.ts",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,12 +22,19 @@
   "homepage": "https://github.com/DevVrat0xB/YALB-Server#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "mongodb": "^3.6.4",
     "npm": "^7.5.4"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.10",
+    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.11",
+    "@types/mongodb": "^3.6.8",
     "@types/node": "^14.14.31",
+    "@types/winston": "^2.4.4",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
