@@ -5,6 +5,7 @@ import {
   getArticles,
   getThisArticle,
   createNewArticle,
+  removeThisArticle,
 } from "../controllers/articles.controller";
 
 const router = Router(); // instantiating a router.
@@ -22,5 +23,6 @@ router.post("/", createNewArticle); // (https://xxxxxxx.xxx/articles/new)
 // updates an article having a particular ID.
 
 // removes an article having a particular ID.
+router.delete("/:id", removeThisArticle); // (https://xxxxxxx.xxx/articles/*)
 
 export default router;

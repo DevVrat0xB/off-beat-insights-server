@@ -72,7 +72,28 @@ function createNewArticle(request: Request, response: Response) {
 // for updating an existing article.
 
 // for removing an existing article.
+function removeThisArticle(request: Request, response: Response) {
+  // converting ID from string to MongoDB Object ID.
+  const articleID: MongoDB.ObjectId = new MongoDB.ObjectId(request.params.id);
+
+  db.collection(ARTICLES)
+    .deleteOne({ _id: articleID })
+    .then((record) => {
+      response.status(200).send(record);
+      logger.info(
+        "[articles.controller.ts, removeThisArticle()] DELETE query successfull."
+      );
+    })
+    .catch((error) => {
+      logger.error(
+        "[articles.controller.ts, removeThisArticles()] DELETE query failed!\n" +
+          error
+      );
+      response.status(503).json({ msg: "Query failed", reason: error });
+    });
+}
 
 export { getArticles };
 export { getThisArticle };
 export { createNewArticle };
+export { removeThisArticle };
