@@ -7,6 +7,7 @@ import { Article } from "../models/article.model";
 
 // functions required for the operations.
 import { makeNewEntry } from "../utils/db_operations/create_op";
+import { deleteAnEntry } from "../utils/db_operations/delete_op";
 
 const collection_name: string = "articles";
 
@@ -51,7 +52,9 @@ function getThisArticle(request: Request, response: Response) {
     });
 }
 
-// for creating a new article.
+// =======================================
+// FOR CREATING A NEW ARTICLE.
+// =======================================
 function createNewArticle(request: Request, response: Response) {
   const articleData: Article = request.body;
 
@@ -65,26 +68,18 @@ function createNewArticle(request: Request, response: Response) {
 
 // for updating an existing article.
 
-// for removing an existing article.
+// =======================================
+// FOR REMOVING AN EXISTING ARTICLE.
+// =======================================
 function removeThisArticle(request: Request, response: Response) {
-  // converting ID from string to MongoDB Object ID.
-  const articleID: MongoDB.ObjectId = new MongoDB.ObjectId(request.params.id);
+  const articleID: string = request.params.id;
 
-  db.collection(collection_name)
-    .deleteOne({ _id: articleID })
-    .then((record) => {
-      response.status(200).send(record);
-      logger.info(
-        "[articles.controller.ts, removeThisArticle()] DELETE query successfull."
-      );
-    })
-    .catch((error) => {
-      logger.error(
-        "[articles.controller.ts, removeThisArticles()] DELETE query failed!\n" +
-          error
-      );
-      response.status(503).json({ msg: "Query failed", reason: error });
-    });
+  // database transaction (delete operation).
+  deleteAnEntry(articleID, collection_name).then((success) => {
+    success
+      ? response.status(200).json({ msg: "Article removal successfull!" })
+      : response.status(503).json({ msg: "Article removal failed!" });
+  });
 }
 
 export { getArticles };
