@@ -21,12 +21,14 @@
   },
   "homepage": "https://github.com/DevVrat0xB/YALB-Server#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^3.6.4",
     "npm": "^7.5.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.10",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.11",
