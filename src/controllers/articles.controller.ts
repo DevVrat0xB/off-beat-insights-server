@@ -5,11 +5,14 @@ import logger from "../utils/logger";
 import { db } from "./../express";
 import { Article } from "../models/article.model";
 
-const ARTICLES: string = "articles"; // name of the collection.
+// functions required for the operations.
+import { makeNewEntry } from "../utils/db_operations/create_op";
+
+const collection_name: string = "articles";
 
 // for fetching all the articles from the database.
 function getArticles(request: Request, response: Response) {
-  db.collection(ARTICLES)
+  db.collection(collection_name)
     .find()
     .toArray()
     .then((records: Array<Article>) => {
@@ -31,7 +34,7 @@ function getThisArticle(request: Request, response: Response) {
   // converting ID from string to MongoDB Object ID.
   const articleID: MongoDB.ObjectId = new MongoDB.ObjectId(request.params.id);
 
-  db.collection(ARTICLES)
+  db.collection(collection_name)
     .findOne({ _id: articleID })
     .then((record) => {
       response.status(200).send(record);
@@ -50,23 +53,14 @@ function getThisArticle(request: Request, response: Response) {
 
 // for creating a new article.
 function createNewArticle(request: Request, response: Response) {
-  const article: Article = request.body;
+  const articleData: Article = request.body;
 
-  db.collection(ARTICLES)
-    .insertOne(article)
-    .then((result) => {
-      response.status(200).json({ msg: "Operation successfull!" });
-      logger.info(
-        "[articles.controller.ts, createNewArticle()] INSERT query successfull."
-      );
-    })
-    .catch((error) => {
-      logger.error(
-        "[articles.controller.ts, createNewArticle()] INSERT query failed!\n" +
-          error
-      );
-      response.status(503).json({ msg: "Query failed", reason: error });
-    });
+  // database transaction (create operation).
+  makeNewEntry(articleData, collection_name).then((success) => {
+    success
+      ? response.status(200).json({ msg: "Article creation successfull!" })
+      : response.status(503).json({ msg: "Article creation failed!" });
+  });
 }
 
 // for updating an existing article.
@@ -76,7 +70,7 @@ function removeThisArticle(request: Request, response: Response) {
   // converting ID from string to MongoDB Object ID.
   const articleID: MongoDB.ObjectId = new MongoDB.ObjectId(request.params.id);
 
-  db.collection(ARTICLES)
+  db.collection(collection_name)
     .deleteOne({ _id: articleID })
     .then((record) => {
       response.status(200).send(record);

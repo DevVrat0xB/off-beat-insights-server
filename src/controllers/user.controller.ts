@@ -2,44 +2,35 @@ import { Request, Response } from "express";
 import BCryptJS from "bcryptjs";
 
 import logger from "../utils/logger";
-import { db } from "./../express";
 import { User } from "../models/user.model";
+
+// functions required for the operations.
+import { makeNewEntry } from "../utils/db_operations/create_op";
 
 // for creating a new user.
 function createNewUser(request: Request, response: Response) {
-  let user: User = request.body; // password would be hashed later.
+  let userData: User = request.body; // password would be hashed later.
 
   // changing user password from plain text to hash value.
   // returns the original text upon failure.
-  BCryptJS.hash(user.password, 12)
+  BCryptJS.hash(userData.password, 12)
     .then((hash) => {
       // updating password value.
-      user.password = hash;
-      logger.error(
-        "[user.controller.ts, generateHashFrom()] Encryption Failed."
-      );
+      userData.password = hash;
+      logger.error("[user.controller, generateHashFrom()] Encryption Failed.");
 
-      // All collections have same name as of the role (but all in lowercase).
-      // E.g Admin (a role) => admin (a collection).
-      db.collection(user.role.toLowerCase())
-        .insertOne(user)
-        .then((result) => {
-          response.status(200).json({ msg: "Operation successfull!" });
-          logger.info(
-            "[users.controller.ts, createNewUser()] INSERT query successfull."
-          );
-        })
-        .catch((error) => {
-          logger.error(
-            "[users.controller.ts, createNewUser()] INSERT query failed!\n" +
-              error
-          );
-          response.status(503).json({ msg: "Query failed", reason: error });
-        });
+      // database transaction (create operation).
+      const collection_name = userData.role.toLowerCase();
+      makeNewEntry(userData, collection_name).then((success) => {
+        success
+          ? response.status(200).json({ msg: "User creation successfull!" })
+          : response.status(503).json({ msg: "User creation failed!" });
+      });
     })
     .catch((error) => {
       logger.error(
-        "[user.controller.ts, generateHashFrom()] Encryption Failed.\n" + error
+        "[user.controller.ts, generateHashFrom()] Password encryption Failed.\n" +
+          error
       );
     });
 }
