@@ -1,55 +1,94 @@
 import { Request, Response } from "express";
-import MongoDB from "mongodb";
 
-import logger from "../utils/logger";
-import { db } from "./../express";
 import { Article } from "../models/article.model";
+import { TRANSACTION_TYPE } from "../models/transaction_type.model";
 
 // functions required for the operations.
 import { makeNewEntry } from "../utils/db_operations/create_op";
 import { deleteAnEntry } from "../utils/db_operations/delete_op";
+import { fetchAnEntry, fetchEntries } from "../utils/db_operations/read_op";
+import logger from "../utils/logger";
 
 const collection_name: string = "articles";
 
-// for fetching all the articles from the database.
+// =======================================
+// FOR FETCHING ALL THE ARTICLES
+// =======================================
 function getArticles(request: Request, response: Response) {
-  db.collection(collection_name)
-    .find()
-    .toArray()
-    .then((records: Array<Article>) => {
-      response.status(200).send(records);
-      logger.info(
-        "[articles.controller.ts, getArticles()] FIND query successfull."
-      );
-    })
-    .catch((error) => {
-      logger.error(
-        "[articles.controller.ts, getArticles()] FIND query failed!\n" + error
-      );
-      response.status(503).json({ msg: "Query failed", reason: error });
-    });
+  // search criteria. Must NOT contain ID as a filter criteria.
+  const filter = request.body.filter;
+  const projection: Array<string> = request.body.fields;
+
+  // database transaction (read operation).
+  fetchEntries(filter, collection_name, projection).then((transaction) => {
+    switch (transaction.type) {
+      case TRANSACTION_TYPE.SUCCESS:
+        response
+          .status(200)
+          .json({
+            msg: "Articles fetched successfully!",
+            data: transaction.data,
+          });
+        break;
+
+      case TRANSACTION_TYPE.NORESULT:
+        response
+          .status(200)
+          .json({ msg: "Articles do not exist!", data: transaction.data });
+        break;
+
+      case TRANSACTION_TYPE.FAILURE:
+        response
+          .status(503)
+          .json({
+            msg: "Fetching of articles failed!",
+            data: transaction.data,
+          });
+        break;
+
+      default:
+        logger.error("[articles.controller.ts, makeNewEntry] Default case.");
+        break;
+    }
+  });
 }
 
-// for fetching an article from the database.
+// =======================================
+// FOR FETCHING AN ARTICLE
+// =======================================
 function getThisArticle(request: Request, response: Response) {
-  // converting ID from string to MongoDB Object ID.
-  const articleID: MongoDB.ObjectId = new MongoDB.ObjectId(request.params.id);
+  const articleID = request.params.id;
+  const projection: Array<string> = request.body.fields;
 
-  db.collection(collection_name)
-    .findOne({ _id: articleID })
-    .then((record) => {
-      response.status(200).send(record);
-      logger.info(
-        "[articles.controller.ts, getThisArticle()] FIND query successfull."
-      );
-    })
-    .catch((error) => {
-      logger.error(
-        "[articles.controller.ts, getThisArticles()] FIND query failed!\n" +
-          error
-      );
-      response.status(503).json({ msg: "Query failed", reason: error });
-    });
+  // database transaction (read operation).
+  fetchAnEntry(articleID, collection_name, projection).then((transaction) => {
+    switch (transaction.type) {
+      case TRANSACTION_TYPE.SUCCESS:
+        response
+          .status(200)
+          .json({
+            msg: "Article fetched successfully!",
+            data: transaction.data,
+          });
+        break;
+
+      case TRANSACTION_TYPE.NORESULT:
+        response
+          .status(200)
+          .json({ msg: "Article does not exists!", data: transaction.data });
+        break;
+
+      case TRANSACTION_TYPE.FAILURE:
+        response
+          .status(503)
+          .json({ msg: "Fetching article failed!", data: transaction.data });
+        break;
+
+      default:
+        logger.error("[articles.controller.ts, makeNewEntry] Default case.");
+        break;
+    }
+  });
 }
 
 // =======================================
@@ -59,10 +98,27 @@ function createNewArticle(request: Request, response: Response) {
   const articleData: Article = request.body;
 
   // database transaction (create operation).
-  makeNewEntry(articleData, collection_name).then((success) => {
-    success
-      ? response.status(200).json({ msg: "Article creation successfull!" })
-      : response.status(503).json({ msg: "Article creation failed!" });
+  makeNewEntry(articleData, collection_name).then((transaction) => {
+    switch (transaction.type) {
+      case TRANSACTION_TYPE.SUCCESS:
+        response
+          .status(200)
+          .json({
+            msg: "Article creation successfull!",
+            data: transaction.data,
+          });
+        break;
+
+      case TRANSACTION_TYPE.FAILURE:
+        response
+          .status(503)
+          .json({ msg: "Article creation failed!", data: transaction.data });
+        break;
+
+      default:
+        logger.error("[articles.controller.ts, makeNewEntry] Default case.");
+        break;
+    }
   });
 }
 
@@ -75,10 +131,35 @@ function removeThisArticle(request: Request, response: Response) {
   const articleID: string = request.params.id;
 
   // database transaction (delete operation).
-  deleteAnEntry(articleID, collection_name).then((success) => {
-    success
-      ? response.status(200).json({ msg: "Article removal successfull!" })
-      : response.status(503).json({ msg: "Article removal failed!" });
+  deleteAnEntry(articleID, collection_name).then((transaction) => {
+    switch (transaction.type) {
+      case TRANSACTION_TYPE.SUCCESS:
+        response
+          .status(200)
+          .json({
+            msg: "Article removal successfull!",
+            data: transaction.data,
+          });
+        break;
+
+      case TRANSACTION_TYPE.NORESULT:
+        response
+          .status(200)
+          .json({ msg: "Article does not exists!", data: transaction.data });
+        break;
+
+      case TRANSACTION_TYPE.FAILURE:
+        response
+          .status(503)
+          .json({ msg: "Article creation failed!", data: transaction.data });
+        break;
+
+      default:
+        logger.error(
+          "[articles.controller.ts, removeThisArticle] Switch default case."
+        );
+        break;
+    }
   });
 }
 
