@@ -7,6 +7,7 @@ import connectDB from "./utils/connection"; // function for DB connection.
 
 // Routers for handling different API requests.
 import ArticleRouter from "./routes/articles";
+import UserRouter from "./routes/users";
 
 // request handler which is passed in to the HTTP Server.
 const requestHandler: Application = Express();
@@ -32,6 +33,12 @@ requestHandler.use(Express.json());
 
 // Middlewares for handling different routes.
 requestHandler.use("/articles", ArticleRouter);
+
+// handled by same Router as operations are almost identical.
+// there may be some operation that must be isolated for a role, hence, different routes.
+requestHandler.use("/reader", UserRouter);
+requestHandler.use("/publisher", UserRouter);
+requestHandler.use("/admin", UserRouter);
 
 // *****************************
 // *****************************
