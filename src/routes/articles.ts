@@ -4,6 +4,7 @@ import { Router } from "express";
 import {
   getArticles,
   getThisArticle,
+  updateThisArticle,
   createNewArticle,
   removeThisArticle,
 } from "../controllers/articles.controller";
@@ -21,6 +22,7 @@ router.get("/:id", getThisArticle); // (https://xxxxxxx.xxx/articles/*)
 router.post("/", createNewArticle); // (https://xxxxxxx.xxx/articles/new)
 
 // updates an article having a particular ID.
+router.patch("/:id", updateThisArticle); // (https://xxxxxxx.xxx/articles/*)
 
 // removes an article having a particular ID.
 router.delete("/:id", removeThisArticle); // (https://xxxxxxx.xxx/articles/*)
