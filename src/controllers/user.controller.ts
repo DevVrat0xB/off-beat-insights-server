@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import MongoDB from "mongodb";
 import BCryptJS from "bcryptjs";
 
 import logger from "../utils/logger";
@@ -98,7 +99,7 @@ function getUsers(request: Request, response: Response) {
 // FOR FETCHING A USER INFO
 // =======================================
 function getThisUser(request: Request, response: Response) {
-  const userID = request.params.id;
+  const userID = new MongoDB.ObjectId(request.params.id);
   const collectionName = request.body.collection;
   const projection: Array<string> = request.body.fields;
 
@@ -135,7 +136,7 @@ function getThisUser(request: Request, response: Response) {
 // FOR REMOVING AN EXISTING USER.
 // =======================================
 function removeThisUser(request: Request, response: Response) {
-  const userID: string = request.params.id;
+  const userID = new MongoDB.ObjectId(request.params.id);
   const collectionName: string = request.body.collection;
 
   // database transaction (delete operation).

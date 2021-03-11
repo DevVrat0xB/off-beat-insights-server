@@ -9,16 +9,13 @@ import {
 
 // for deleting an existing entry in any given collection.
 export const deleteAnEntry = async (
-  id: string,
+  id: MongoDB.ObjectId,
   collection: string
 ): Promise<TRANSACTION> => {
-  // converting ID from string to MongoDB Object ID.
-  const record_id: MongoDB.ObjectId = new MongoDB.ObjectId(id);
-
   let result: TRANSACTION; // result of the query.
 
   try {
-    const query = await db.collection(collection).deleteOne({ _id: record_id });
+    const query = await db.collection(collection).deleteOne({ _id: id });
     logger.info("[delete_op.ts, deleteAnEntry()] DELETE query successfull.");
     result =
       query.result.n === 0

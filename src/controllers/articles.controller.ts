@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import MongoDB from "mongodb";
 
 import { Article } from "../models/article.model";
 import { TRANSACTION_TYPE } from "../models/transaction_type.model";
@@ -23,12 +24,10 @@ function getArticles(request: Request, response: Response) {
   fetchEntries(filter, collection_name, projection).then((transaction) => {
     switch (transaction.type) {
       case TRANSACTION_TYPE.SUCCESS:
-        response
-          .status(200)
-          .json({
-            msg: "Articles fetched successfully!",
-            data: transaction.data,
-          });
+        response.status(200).json({
+          msg: "Articles fetched successfully!",
+          data: transaction.data,
+        });
         break;
 
       case TRANSACTION_TYPE.NORESULT:
@@ -38,12 +37,10 @@ function getArticles(request: Request, response: Response) {
         break;
 
       case TRANSACTION_TYPE.FAILURE:
-        response
-          .status(503)
-          .json({
-            msg: "Fetching of articles failed!",
-            data: transaction.data,
-          });
+        response.status(503).json({
+          msg: "Fetching of articles failed!",
+          data: transaction.data,
+        });
         break;
 
       default:
@@ -57,19 +54,17 @@ function getArticles(request: Request, response: Response) {
 // FOR FETCHING AN ARTICLE
 // =======================================
 function getThisArticle(request: Request, response: Response) {
-  const articleID = request.params.id;
+  const articleID = new MongoDB.ObjectId(request.params.id);
   const projection: Array<string> = request.body.fields;
 
   // database transaction (read operation).
   fetchAnEntry(articleID, collection_name, projection).then((transaction) => {
     switch (transaction.type) {
       case TRANSACTION_TYPE.SUCCESS:
-        response
-          .status(200)
-          .json({
-            msg: "Article fetched successfully!",
-            data: transaction.data,
-          });
+        response.status(200).json({
+          msg: "Article fetched successfully!",
+          data: transaction.data,
+        });
         break;
 
       case TRANSACTION_TYPE.NORESULT:
@@ -101,12 +96,10 @@ function createNewArticle(request: Request, response: Response) {
   makeNewEntry(articleData, collection_name).then((transaction) => {
     switch (transaction.type) {
       case TRANSACTION_TYPE.SUCCESS:
-        response
-          .status(200)
-          .json({
-            msg: "Article creation successfull!",
-            data: transaction.data,
-          });
+        response.status(200).json({
+          msg: "Article creation successfull!",
+          data: transaction.data,
+        });
         break;
 
       case TRANSACTION_TYPE.FAILURE:
@@ -122,24 +115,20 @@ function createNewArticle(request: Request, response: Response) {
   });
 }
 
-// for updating an existing article.
-
 // =======================================
 // FOR REMOVING AN EXISTING ARTICLE.
 // =======================================
 function removeThisArticle(request: Request, response: Response) {
-  const articleID: string = request.params.id;
+  const articleID = new MongoDB.ObjectId(request.params.id);
 
   // database transaction (delete operation).
   deleteAnEntry(articleID, collection_name).then((transaction) => {
     switch (transaction.type) {
       case TRANSACTION_TYPE.SUCCESS:
-        response
-          .status(200)
-          .json({
-            msg: "Article removal successfull!",
-            data: transaction.data,
-          });
+        response.status(200).json({
+          msg: "Article removal successfull!",
+          data: transaction.data,
+        });
         break;
 
       case TRANSACTION_TYPE.NORESULT:

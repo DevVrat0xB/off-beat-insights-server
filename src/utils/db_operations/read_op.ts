@@ -13,13 +13,10 @@ import {
 
 // for fetching a single entry from any given collection.
 export const fetchAnEntry = async (
-  id: string,
+  id: MongoDB.ObjectId,
   collection: string,
   fields: Array<string>
 ): Promise<any> => {
-  // converting ID from string to MongoDB Object ID.
-  const record_id: MongoDB.ObjectId = new MongoDB.ObjectId(id);
-
   // preparing projection argument.
   const fieldsToShow = generateProjectionArgFrom(fields);
   let result: TRANSACTION;
@@ -27,7 +24,7 @@ export const fetchAnEntry = async (
   try {
     const record = await db
       .collection(collection)
-      .findOne({ _id: record_id }, { projection: fieldsToShow });
+      .findOne({ _id: id }, { projection: fieldsToShow });
     logger.info("[read_op.ts, fetchAnEntry()] READ query successfull.");
     if (record !== null) {
       result = { type: TRANSACTION_TYPE.SUCCESS, data: record };
@@ -61,7 +58,6 @@ export const fetchEntries = async (
       .toArray();
 
     logger.info("[read_op.ts, fetchEntries()] READ query successfull.");
-    logger.debug("RECORDS: " + records);
 
     // returning a list of records (if exist).
     if (records.length !== 0) {

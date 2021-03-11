@@ -1,7 +1,8 @@
+import { ObjectId } from "mongodb";
 import { Chapter } from "./chapter.model";
 
 export interface Article {
-  _id: string;
+  _id: ObjectId;
   title: string;
   summary: string;
   chapters: Chapter[];
