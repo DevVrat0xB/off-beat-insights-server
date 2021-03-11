@@ -9,6 +9,7 @@ import { TRANSACTION_TYPE } from "../models/transaction_type.model";
 // functions required for the operations.
 import { makeNewEntry } from "../utils/db_operations/create_op";
 import { deleteAnEntry } from "../utils/db_operations/delete_op";
+import { updateAnEntry } from "../utils/db_operations/update_op";
 import { fetchAnEntry, fetchEntries } from "../utils/db_operations/read_op";
 
 // =======================================
@@ -133,6 +134,45 @@ function getThisUser(request: Request, response: Response) {
 }
 
 // =======================================
+// FOR UPDATING AN EXISTING USER.
+// =======================================
+function updateThisUser(request: Request, response: Response) {
+  const userID = new MongoDB.ObjectId(request.params.id);
+  const updatedRecord: Partial<User> = request.body.updates;
+  const collectionName: string = request.body.collection;
+
+  // database transaction (update operation).
+  updateAnEntry(userID, updatedRecord, collectionName).then((transaction) => {
+    switch (transaction.type) {
+      case TRANSACTION_TYPE.SUCCESS:
+        response.status(200).json({
+          msg: "User update successfull!",
+          data: transaction.data,
+        });
+        break;
+
+      case TRANSACTION_TYPE.NORESULT:
+        response
+          .status(200)
+          .json({ msg: "No user to update.", data: transaction.data });
+        break;
+
+      case TRANSACTION_TYPE.FAILURE:
+        response
+          .status(503)
+          .json({ msg: "User update failed!", data: transaction.data });
+        break;
+
+      default:
+        logger.error(
+          "[users.controller.ts, updateThisUser] Switch default case."
+        );
+        break;
+    }
+  });
+}
+
+// =======================================
 // FOR REMOVING AN EXISTING USER.
 // =======================================
 function removeThisUser(request: Request, response: Response) {
@@ -173,4 +213,5 @@ function removeThisUser(request: Request, response: Response) {
 export { createNewUser };
 export { getUsers };
 export { getThisUser };
+export { updateThisUser };
 export { removeThisUser };

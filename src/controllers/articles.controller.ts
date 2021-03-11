@@ -7,6 +7,7 @@ import { TRANSACTION_TYPE } from "../models/transaction_type.model";
 // functions required for the operations.
 import { makeNewEntry } from "../utils/db_operations/create_op";
 import { deleteAnEntry } from "../utils/db_operations/delete_op";
+import { updateAnEntry } from "../utils/db_operations/update_op";
 import { fetchAnEntry, fetchEntries } from "../utils/db_operations/read_op";
 import logger from "../utils/logger";
 
@@ -116,6 +117,46 @@ function createNewArticle(request: Request, response: Response) {
 }
 
 // =======================================
+// FOR UPDATING AN EXISTING ARTICLE.
+// =======================================
+function updateThisArticle(request: Request, response: Response) {
+  const articleID = new MongoDB.ObjectId(request.params.id);
+  const updatedRecord: Partial<Article> = request.body.updates;
+
+  // database transaction (update operation).
+  updateAnEntry(articleID, updatedRecord, collection_name).then(
+    (transaction) => {
+      switch (transaction.type) {
+        case TRANSACTION_TYPE.SUCCESS:
+          response.status(200).json({
+            msg: "Article update successfull!",
+            data: transaction.data,
+          });
+          break;
+
+        case TRANSACTION_TYPE.NORESULT:
+          response
+            .status(200)
+            .json({ msg: "No article to update.", data: transaction.data });
+          break;
+
+        case TRANSACTION_TYPE.FAILURE:
+          response
+            .status(503)
+            .json({ msg: "Article update failed!", data: transaction.data });
+          break;
+
+        default:
+          logger.error(
+            "[articles.controller.ts, updateThisArticle] Switch default case."
+          );
+          break;
+      }
+    }
+  );
+}
+
+// =======================================
 // FOR REMOVING AN EXISTING ARTICLE.
 // =======================================
 function removeThisArticle(request: Request, response: Response) {
@@ -154,5 +195,6 @@ function removeThisArticle(request: Request, response: Response) {
 
 export { getArticles };
 export { getThisArticle };
+export { updateThisArticle };
 export { createNewArticle };
 export { removeThisArticle };
