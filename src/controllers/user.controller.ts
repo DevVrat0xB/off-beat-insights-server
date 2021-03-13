@@ -38,9 +38,20 @@ function createNewUser(request: Request, response: Response) {
             break;
 
           case TRANSACTION_TYPE.FAILURE:
-            response
-              .status(503)
-              .json({ msg: "User creation failed!", data: transaction.data });
+            // E11000 is MongoDB error for duplicate key exception.
+            const DUPLICATE_KEY: number = 11000;
+            const error: number = transaction.data.code;
+            const value: string = transaction.data;
+
+            if (error === DUPLICATE_KEY)
+              response.status(503).json({
+                msg: transaction.data.field + " must be unique!",
+                data: transaction.data,
+              });
+            else
+              response
+                .status(503)
+                .json({ msg: "User creation failed!", data: transaction.data });
             break;
 
           default:

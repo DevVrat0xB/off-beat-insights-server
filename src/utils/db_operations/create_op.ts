@@ -31,8 +31,10 @@ export const makeNewEntry = async (
     logger.error(
       "[create_op.ts, makeNewEntry()] INSERT query failed!." + error
     );
-    logger.error("[read_op.ts, fetchEntries()] READ query failed.\n" + error);
-    result = { type: TRANSACTION_TYPE.FAILURE, data: null };
+    result = {
+      type: TRANSACTION_TYPE.FAILURE,
+      data: { error_code: error.code, field: error.keyValue },
+    };
   }
   return result;
 };
